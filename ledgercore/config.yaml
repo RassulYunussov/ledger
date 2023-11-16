@@ -1,0 +1,27 @@
+application:
+  name: ledgercore
+  environment: local
+database:
+  host: localhost
+  port: 1234
+  user: user
+  password: password
+  name: dbname
+  poolsize: 10
+server:
+  port: 50051
+inmemory:
+  outpost:
+    intervalseconds: 60
+    offsetseconds: 600
+  operations:
+    queues: 10
+    buffer: 100
+  accountcurrencies:
+    queues: 500
+    buffer: 100
+  workers: 5
+datadog:
+  host: localhost
+  port: 8125
+  rate: 1.0

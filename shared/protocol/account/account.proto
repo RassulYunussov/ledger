@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+import "google/protobuf/wrappers.proto";
+
+option go_package = "ledgercore/account";
+
+package account;
+
+service Account {
+  rpc CreateAccount(CreateAccountRequest) returns (CreateAccountResponse) {}
+  rpc GetAccount(GetAccountRequest) returns (AccountDetailsResponse) {}
+}
+
+message CurrencyCreateRequest {
+  string currency = 1;
+  google.protobuf.Int64Value creditLimit = 2;
+}
+
+message CreateAccountRequest {
+  bool allowAsync = 1;
+  repeated CurrencyCreateRequest currencies = 2;
+}
+
+message AccountCurrencyDetailsResponse {
+  string currency = 1;
+  int64 amount = 2;
+  google.protobuf.Int64Value creditLimit = 3;
+}
+
+message AccountDetailsResponse {
+  bytes id = 1;
+  bool isSuspended = 2;
+  bool allowAsync = 3;
+  google.protobuf.StringValue suspendedReason = 4;
+  repeated AccountCurrencyDetailsResponse currencies = 5;
+}
+
+message CreateAccountResponse {
+  int32 status = 1;
+  AccountDetailsResponse details = 2;
+}
+
+message GetAccountRequest { bytes id = 1; }

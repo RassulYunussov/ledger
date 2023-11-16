@@ -1,0 +1,7 @@
+application:
+  name: balanceupdater
+  environment: local
+temporal:
+  namespace: default
+  taskqueue: update_balance
+  workers: 5

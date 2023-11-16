@@ -1,0 +1,4 @@
+insert into account (id, subsystem_id, allow_async, is_suspended, created_date) values ('ade4dd6e-6865-4350-a494-01dc36898fed','9667453c-e685-4c2a-a1ba-98f2efda9b0b',true, false, now());
+insert into account (id, subsystem_id, allow_async, is_suspended, created_date) values ('7d782472-681c-4adc-8207-01dc396e7351','9667453c-e685-4c2a-a1ba-98f2efda9b0b',true, false, now());
+insert into account (id, subsystem_id, allow_async, is_suspended, created_date) values ('c5dd953c-0ba7-4792-8c30-01dc5e9c309f','9667453c-e685-4c2a-a1ba-98f2efda9b0b',true, false, now());
+insert into account (id, subsystem_id, allow_async, is_suspended, created_date) values ('eefa64aa-8ede-4713-9c42-01dc9b314bfc','9667453c-e685-4c2a-a1ba-98f2efda9b0b',true, false, now());

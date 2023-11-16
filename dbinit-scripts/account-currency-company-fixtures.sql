@@ -1,0 +1,4 @@
+insert into account_currency (id,account_id, currency_id, amount) values ('f6557d3b-38fb-420d-8c01-03d32e1dcd2a','ade4dd6e-6865-4350-a494-01dc36898fec','KZT',1000000);
+insert into account_currency (id,account_id, currency_id, amount) values ('0bd5fa05-d19a-430e-8674-03d39689235a','7d782472-681c-4adc-8207-01dc396e735c','KZT',1000000);
+insert into account_currency (id,account_id, currency_id, amount) values ('99025c94-e272-45df-aa34-03d3d0c1025a','c5dd953c-0ba7-4792-8c30-01dc5e9c309c','KZT',1000000);
+insert into account_currency (id,account_id, currency_id, amount) values ('29050c8f-968c-4e8b-83b9-03d465e7971a','eefa64aa-8ede-4713-9c42-01dc9b314bfa','KZT',1000000);
