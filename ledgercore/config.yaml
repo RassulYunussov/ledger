@@ -1,6 +1,21 @@
 application:
   name: ledgercore
   environment: local
+domain:
+  transfer:
+    currencycache:
+      capacity: 300
+      ttlseconds: 3600
+    accountscache:
+      capacity: 1000000
+      ttlseconds: 30
+    createtransaction:
+      timeoutms: 1000
+      circuitbreaker:
+        intervalms: 1000
+        timeoutms: 5000
+        maxrequest: 1         
+        consecutivefailures: 1
 database:
   host: localhost
   port: 1234
@@ -18,10 +33,13 @@ inmemory:
     queues: 10
     buffer: 100
   accountcurrencies:
+    subsystems: 3
     queues: 500
     buffer: 100
+    strategy: default # can be weighted | round-robin | default
   workers: 5
 datadog:
+  enabled: false
   host: localhost
   port: 8125
   rate: 1.0
