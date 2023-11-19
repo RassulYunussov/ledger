@@ -1,4 +1,4 @@
-package inmemory
+package accountcurrency
 
 import (
 	"context"

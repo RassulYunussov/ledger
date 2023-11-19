@@ -1,4 +1,4 @@
-package updater
+package temporal
 
 import (
 	"balanceupdater/workflows"
@@ -39,7 +39,7 @@ func (t *temporalBalanceUpdater) UpdateBalance(operation database.OperationStatu
 
 }
 
-func createTemporalBalanceUpdater(log *zap.Logger, configuration config.Configuration) (Updater, error) {
+func CreateTemporalBalanceUpdater(log *zap.Logger, configuration config.Configuration) (*temporalBalanceUpdater, error) {
 
 	logger := logur.LoggerToKV(zapadapter.New(log))
 	clientOptions := client.Options{

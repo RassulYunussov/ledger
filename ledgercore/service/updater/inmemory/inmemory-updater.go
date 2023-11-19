@@ -1,10 +1,10 @@
-package updater
+package inmemory
 
 import (
 	"context"
 	"fmt"
 	"ledgercore/config"
-	"ledgercore/service/updater/inmemory"
+	"ledgercore/service/updater/inmemory/accountcurrency"
 	"shared/service/database"
 	"shared/service/infrastructure/datadog"
 	"sync"
@@ -16,7 +16,7 @@ import (
 const outpostReadTimeout = time.Minute
 
 type inMemoryUpdater struct {
-	accountCurrencyInMemoryUpdater inmemory.AccountCurrencyInMemoryUpdater
+	accountCurrencyInMemoryUpdater accountcurrency.AccountCurrencyInMemoryUpdater
 	log                            *zap.Logger
 	operationsChans                []chan database.OperationStatusTransition
 	dd                             datadog.Datadog
@@ -57,7 +57,7 @@ func (inMemory *inMemoryUpdater) startPeriodicUpdater(intervalSeconds int, offse
 		}
 		inMemory.log.Debug(fmt.Sprintf("fetched %d to process", len(operationIds)))
 		for _, operationId := range operationIds {
-			secondContext, scancel := context.WithTimeout(minuteContext, inmemory.UPDATE_BALANCE_TIMEOUT_SECONDS)
+			secondContext, scancel := context.WithTimeout(minuteContext, accountcurrency.UPDATE_BALANCE_TIMEOUT_SECONDS)
 			err := inMemory.accountCurrencyRepository.UpdateBalance(secondContext, database.OperationStatusTransition{
 				Id:   operationId,
 				From: database.OPERATION_STATUS_CREATED,
@@ -80,11 +80,11 @@ func (inMemory *inMemoryUpdater) processOperations(channel <-chan database.Opera
 	inMemory.operationsWaitGroup.Done()
 }
 
-func createInMemoryBalanceUpdater(log *zap.Logger,
+func CreateInMemoryBalanceUpdater(log *zap.Logger,
 	accountCurrencyRepository database.AccountCurrencyRepository,
 	configuration config.Configuration,
 	dd datadog.Datadog,
-	strategy string) (Updater, error) {
+	strategy string) (*inMemoryUpdater, error) {
 
 	operationsChans := make([]chan database.OperationStatusTransition, configuration.InMemory.Operations.Queues)
 	for i := 0; i < configuration.InMemory.Operations.Queues; i++ {
@@ -92,7 +92,7 @@ func createInMemoryBalanceUpdater(log *zap.Logger,
 	}
 
 	updater := inMemoryUpdater{
-		inmemory.NewAccountCurrencyInMemoryUpdater(log, dd, configuration, accountCurrencyRepository),
+		accountcurrency.NewAccountCurrencyInMemoryUpdater(log, dd, configuration, accountCurrencyRepository),
 		log.Named("inmemory updater"),
 		operationsChans,
 		dd,

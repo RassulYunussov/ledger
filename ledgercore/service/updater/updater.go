@@ -2,6 +2,8 @@ package updater
 
 import (
 	"ledgercore/config"
+	"ledgercore/service/updater/inmemory"
+	"ledgercore/service/updater/temporal"
 	"shared/service/database"
 	"shared/service/infrastructure/datadog"
 
@@ -25,11 +27,11 @@ type UpdaterParameters struct {
 
 func NewUpdater(p UpdaterParameters) (Updater, error) {
 	if p.Configuration.InMemory != nil {
-		return createInMemoryBalanceUpdater(p.Log,
+		return inmemory.CreateInMemoryBalanceUpdater(p.Log,
 			p.AccountCurrencyRepository,
 			p.Configuration, p.Datadog,
 			p.Configuration.InMemory.AccountCurrencies.Strategy)
 	} else {
-		return createTemporalBalanceUpdater(p.Log, p.Configuration)
+		return temporal.CreateTemporalBalanceUpdater(p.Log, p.Configuration)
 	}
 }
