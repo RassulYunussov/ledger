@@ -25,8 +25,7 @@ type UpdaterParameters struct {
 
 func NewUpdater(p UpdaterParameters) (Updater, error) {
 	if p.Configuration.InMemory != nil {
-		return createInMemoryBalanceUpdater(p.Lifecycle,
-			p.Log,
+		return createInMemoryBalanceUpdater(p.Log,
 			p.AccountCurrencyRepository,
 			p.Configuration, p.Datadog,
 			p.Configuration.InMemory.AccountCurrencies.Strategy)
