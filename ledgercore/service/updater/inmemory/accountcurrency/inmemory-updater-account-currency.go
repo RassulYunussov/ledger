@@ -34,7 +34,6 @@ type accountCurrencyInMemoryUpdater struct {
 
 func (inMemory *accountCurrencyInMemoryUpdater) Stop() {
 	inMemory.log.Info("stop account currency updater initiated")
-	inMemory.log.Info("closing account currency operations channels")
 	for j := 0; j < len(inMemory.accountCurrencyOperationsChans); j++ {
 		for i := 0; i < len(inMemory.accountCurrencyOperationsChans[j]); i++ {
 			close(inMemory.accountCurrencyOperationsChans[j][i])
