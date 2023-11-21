@@ -39,7 +39,6 @@ func (inMemory *inMemoryUpdater) Stop() {
 	}
 	inMemory.operationsWaitGroup.Wait()
 	inMemory.accountCurrencyInMemoryUpdater.Stop()
-	inMemory.log.Info("updater finished processing, closing workers channel")
 }
 
 func (inMemory *inMemoryUpdater) startPeriodicUpdater(intervalSeconds int, offsetSeconds int) {
