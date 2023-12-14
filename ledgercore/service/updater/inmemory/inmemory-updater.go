@@ -82,8 +82,7 @@ func (inMemory *inMemoryUpdater) processOperations(channel <-chan database.Opera
 func CreateInMemoryBalanceUpdater(log *zap.Logger,
 	accountCurrencyRepository database.AccountCurrencyRepository,
 	configuration config.Configuration,
-	dd datadog.Datadog,
-	strategy string) (*inMemoryUpdater, error) {
+	dd datadog.Datadog) (*inMemoryUpdater, error) {
 
 	operationsChans := make([]chan database.OperationStatusTransition, configuration.InMemory.Operations.Queues)
 	for i := 0; i < configuration.InMemory.Operations.Queues; i++ {

@@ -29,8 +29,7 @@ func NewUpdater(p UpdaterParameters) (Updater, error) {
 	if p.Configuration.InMemory != nil {
 		return inmemory.CreateInMemoryBalanceUpdater(p.Log,
 			p.AccountCurrencyRepository,
-			p.Configuration, p.Datadog,
-			p.Configuration.InMemory.AccountCurrencies.Strategy)
+			p.Configuration, p.Datadog)
 	} else {
 		return temporal.CreateTemporalBalanceUpdater(p.Log, p.Configuration)
 	}
