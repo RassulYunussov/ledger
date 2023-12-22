@@ -27,10 +27,21 @@ type transfersRepository struct {
 }
 
 func (r *transfersRepository) createTransaction(ctx context.Context, tx pgx.Tx, requestMdc *logger.RequestMdc, transactionCreateRequest *TransactionCreateRequest) (*Transaction, error) {
-
-	if !transactionCreateRequest.SourceOperation.IsAsync {
-		var amount int64
-		var creditLimit *int64
+	var amount int64
+	var creditLimit *int64
+	// try the best for async account by examining current amount value
+	// for sync account strictly deny operation below defined limit
+	if transactionCreateRequest.SourceOperation.IsAsync {
+		err := tx.QueryRow(ctx, "select amount, credit_limit from account_currency where id = $1", transactionCreateRequest.SourceOperation.AccountCurrencyId).Scan(&amount, &creditLimit)
+		if err != nil {
+			return nil, err
+		}
+		if creditLimit != nil && amount+transactionCreateRequest.SourceOperation.Amount < *creditLimit {
+			logger.LogInfo(r.log, requestMdc, fmt.Sprintf("source account currency %v - insufficient amount money", transactionCreateRequest.SourceOperation.AccountCurrencyId))
+			increment(r.dd, "transaction.fail", requestMdc.Subsystem, "reason:source_insufficient_amount")
+			return nil, ErrInsufficientAmount
+		}
+	} else {
 		err := tx.QueryRow(ctx, "update account_currency set amount = amount+$1 where id = $2 returning amount, credit_limit",
 			transactionCreateRequest.SourceOperation.Amount,
 			transactionCreateRequest.SourceOperation.AccountCurrencyId).Scan(&amount, &creditLimit)
