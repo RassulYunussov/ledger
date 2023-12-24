@@ -4,7 +4,7 @@ import (
 	"context"
 
 	daccount "ledgercore/domain/accounts"
-	"ledgercore/service/grpcserver/common"
+	"ledgercore/server/grpcserver/common"
 	"shared/protocol/account"
 	"shared/service/infrastructure/datadog"
 

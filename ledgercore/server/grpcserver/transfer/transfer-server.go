@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"ledgercore/domain/transfers"
 	dtransfers "ledgercore/domain/transfers"
-	"ledgercore/service/grpcserver/common"
+	"ledgercore/server/grpcserver/common"
 	"shared/logger"
 	"shared/protocol/transfer"
 	"shared/service/infrastructure/datadog"

@@ -2,8 +2,7 @@ package main
 
 import (
 	"ledgercore/config"
-	"ledgercore/domain"
-	"ledgercore/service"
+	"ledgercore/server"
 	"shared/logger"
 
 	"go.uber.org/fx"
@@ -18,7 +17,6 @@ func main() {
 			return &fxevent.ZapLogger{Logger: log}
 		}),
 		config.ConfigurationModule,
-		domain.DomainModule,
-		service.ServiceModule,
+		server.ServerModule,
 	).Run()
 }

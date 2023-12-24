@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"ledgercore/config"
+	"ledgercore/server/grpcserver/account"
+	"ledgercore/server/grpcserver/transfer"
 	"net"
 	pbaccount "shared/protocol/account"
 	pbtransfer "shared/protocol/transfer"
@@ -74,3 +76,6 @@ func NewGrpcServer(p GrpcServerParameters) (GrpcServer, error) {
 	})
 	return &grpcServer, nil
 }
+
+// GrpcServer is an aggregation of gRPC services provided by application
+var GrpcServerModule = fx.Module("grpc-server", fx.Provide(account.NewAccountsServer, transfer.NewTransferServer, NewGrpcServer))
