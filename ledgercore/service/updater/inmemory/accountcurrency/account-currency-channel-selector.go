@@ -18,7 +18,7 @@ const (
 
 var strategies = []string{weighted, roundRobin, _default}
 
-func getAccountCurrencyOperationsChannelSelector(strategy string) (func(ost database.OperationStatusTransition, accountCurrencyOperationsChans [][]chan database.OperationStatusTransition) (uint, uint), string) {
+func getAccountCurrencyOperationsChannelSelector(strategy string) (func(ost database.OperationStatusTransition, subsystemChannels []subsystemChannel) (uint, uint), string) {
 	switch strategy {
 	case random:
 		return getAccountCurrencyOperationsChannelSelector(strategies[rand.Intn(3)])
@@ -31,11 +31,11 @@ func getAccountCurrencyOperationsChannelSelector(strategy string) (func(ost data
 	}
 }
 
-func getAccountCurrencyOperationsChannelWeighted(ost database.OperationStatusTransition, accountCurrencyOperationsChans [][]chan database.OperationStatusTransition) (uint, uint) {
-	subsystemId := selectSubsystem(ost.AccountSubsystemId, uint(len(accountCurrencyOperationsChans)))
+func getAccountCurrencyOperationsChannelWeighted(ost database.OperationStatusTransition, subsystemChannels []subsystemChannel) (uint, uint) {
+	subsystemId := selectSubsystem(ost.AccountSubsystemId, uint(len(subsystemChannels)))
 	min := math.MaxInt32
 	channelId := uint(0)
-	for idx, ch := range accountCurrencyOperationsChans[subsystemId] {
+	for idx, ch := range subsystemChannels[subsystemId].accountCurrencyChannels {
 		chLen := len(ch)
 		if chLen < min {
 			min = chLen
@@ -45,14 +45,14 @@ func getAccountCurrencyOperationsChannelWeighted(ost database.OperationStatusTra
 	return subsystemId, channelId
 }
 
-func getAccountCurrencyOperationsChannelRoundRobin(ost database.OperationStatusTransition, accountCurrencyOperationsChans [][]chan database.OperationStatusTransition) (uint, uint) {
-	subsystemId := selectSubsystem(ost.AccountSubsystemId, uint(len(accountCurrencyOperationsChans)))
-	return subsystemId, uint(ost.Id) % uint(len(accountCurrencyOperationsChans[subsystemId]))
+func getAccountCurrencyOperationsChannelRoundRobin(ost database.OperationStatusTransition, subsystemChannels []subsystemChannel) (uint, uint) {
+	subsystemId := selectSubsystem(ost.AccountSubsystemId, uint(len(subsystemChannels)))
+	return subsystemId, uint(ost.Id) % uint(len(subsystemChannels[subsystemId].accountCurrencyChannels))
 }
 
-func getAccountCurrencyOperationsChannelByUuid(ost database.OperationStatusTransition, accountCurrencyOperationsChans [][]chan database.OperationStatusTransition) (uint, uint) {
-	subsystemId := selectSubsystem(ost.AccountSubsystemId, uint(len(accountCurrencyOperationsChans)))
-	return subsystemId, getUIntFromUuid(ost.AccountCurrencyId) % uint(len(accountCurrencyOperationsChans[subsystemId]))
+func getAccountCurrencyOperationsChannelByUuid(ost database.OperationStatusTransition, subsystemChannels []subsystemChannel) (uint, uint) {
+	subsystemId := selectSubsystem(ost.AccountSubsystemId, uint(len(subsystemChannels)))
+	return subsystemId, getUIntFromUuid(ost.AccountCurrencyId) % uint(len(subsystemChannels[subsystemId].accountCurrencyChannels))
 }
 
 func selectSubsystem(subsystemId uuid.UUID, cap uint) uint {
