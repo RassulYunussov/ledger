@@ -45,7 +45,7 @@ func (inMemory *accountCurrencyInMemoryUpdater) Stop() {
 	close(inMemory.workersChan)
 }
 
-func (inMemory *accountCurrencyInMemoryUpdater) getOperationTypeChanelId(operationType string) uint {
+func (inMemory *accountCurrencyInMemoryUpdater) getOperationTypeChannelId(operationType string) uint {
 	switch operationType {
 	case database.OPERATION_TYPE_OUT:
 		return 0
@@ -60,12 +60,12 @@ func (inMemory *accountCurrencyInMemoryUpdater) UpdateBalance(operation database
 	current := time.Now()
 	diff := current.UnixNano()/int64(time.Millisecond) - operation.Timestamp.UnixNano()/int64(time.Millisecond)
 	inMemory.dd.Timing("operation.dequeue", time.Duration(diff), fmt.Sprintf("channel:%d", idx))
-	operationTypeChanelId := inMemory.getOperationTypeChanelId(operation.OperationType)
-	subsystemId, channelId := inMemory.getAccountCurrencyOperationsChannelId(operation, inMemory.accountCurrencyOperationsChans[operationTypeChanelId])
-	inMemory.log.Debug(fmt.Sprintf("enqueue operation %d from channel %d into accunt currencies channel %d %d %d", operation.Id, idx, operationTypeChanelId, subsystemId, channelId))
-	inMemory.dd.Increment("acoperation.enqueue", fmt.Sprintf("channel:%d", channelId), fmt.Sprintf("subsystem:%d", subsystemId), fmt.Sprintf("type:%d", operationTypeChanelId))
+	operationTypeChannelId := inMemory.getOperationTypeChannelId(operation.OperationType)
+	subsystemId, channelId := inMemory.getAccountCurrencyOperationsChannelId(operation, inMemory.accountCurrencyOperationsChans[operationTypeChannelId])
+	inMemory.log.Debug(fmt.Sprintf("enqueue operation %d from channel %d into accunt currencies channel %d %d %d", operation.Id, idx, operationTypeChannelId, subsystemId, channelId))
+	inMemory.dd.Increment("acoperation.enqueue", fmt.Sprintf("channel:%d", channelId), fmt.Sprintf("subsystem:%d", subsystemId), fmt.Sprintf("type:%d", operationTypeChannelId))
 	operation.Timestamp = current
-	inMemory.accountCurrencyOperationsChans[operationTypeChanelId][subsystemId][channelId] <- operation
+	inMemory.accountCurrencyOperationsChans[operationTypeChannelId][subsystemId][channelId] <- operation
 }
 
 func (inMemory *accountCurrencyInMemoryUpdater) processAccountCurrencyOperations(channel <-chan database.OperationStatusTransition, subsystemIdx int, idx int) {
@@ -124,8 +124,8 @@ func CreateAccountCurrencyInMemoryUpdater(log *zap.Logger,
 	for j := 0; j < len(updater.accountCurrencyOperationsChans); j++ {
 		updater.accountCurrencyOperationsWaitGroup.Add(len(updater.accountCurrencyOperationsChans[j]))
 	}
-	for operationTypeIdx, operationTypeChanel := range updater.accountCurrencyOperationsChans {
-		for subsystemIdx, subsystemChans := range operationTypeChanel {
+	for operationTypeIdx, operationTypeChannel := range updater.accountCurrencyOperationsChans {
+		for subsystemIdx, subsystemChans := range operationTypeChannel {
 			for idx, ch := range subsystemChans {
 				updater.log.Info(fmt.Sprintf("start listening from operation type %d, sybsystem %d, account currency channel %d", subsystemIdx, operationTypeIdx, idx))
 				go updater.processAccountCurrencyOperations(ch, subsystemIdx, idx)
