@@ -3,19 +3,31 @@ package accountcurrency
 import (
 	"encoding/binary"
 	"math"
+	"math/rand"
 	"shared/service/database"
 
 	"github.com/google/uuid"
 )
 
-func getAccountCurrencyOperationsChannelSelector(strategy string) func(ost database.OperationStatusTransition, accountCurrencyOperationsChans [][]chan database.OperationStatusTransition) (uint, uint) {
+const (
+	weighted   = "weighted"
+	roundRobin = "round-robin"
+	random     = "random"
+	_default   = "default"
+)
+
+var strategies = []string{weighted, roundRobin, _default}
+
+func getAccountCurrencyOperationsChannelSelector(strategy string) (func(ost database.OperationStatusTransition, accountCurrencyOperationsChans [][]chan database.OperationStatusTransition) (uint, uint), string) {
 	switch strategy {
-	case "weighted":
-		return getAccountCurrencyOperationsChannelWeighted
-	case "round-robin":
-		return getAccountCurrencyOperationsChannelRoundRobin
+	case random:
+		return getAccountCurrencyOperationsChannelSelector(strategies[rand.Intn(3)])
+	case weighted:
+		return getAccountCurrencyOperationsChannelWeighted, weighted
+	case roundRobin:
+		return getAccountCurrencyOperationsChannelRoundRobin, roundRobin
 	default:
-		return getAccountCurrencyOperationsChannelByUuid
+		return getAccountCurrencyOperationsChannelByUuid, _default
 	}
 }
 

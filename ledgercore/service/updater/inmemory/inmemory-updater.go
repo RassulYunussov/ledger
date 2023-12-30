@@ -90,7 +90,7 @@ func CreateInMemoryBalanceUpdater(log *zap.Logger,
 	}
 
 	updater := inMemoryUpdater{
-		accountcurrency.NewAccountCurrencyInMemoryUpdater(log, dd, configuration, accountCurrencyRepository),
+		accountcurrency.CreateAccountCurrencyInMemoryUpdater(log, dd, configuration, accountCurrencyRepository),
 		log.Named("inmemory updater"),
 		operationsChans,
 		dd,

@@ -189,6 +189,7 @@ func (t *transfers) initBalanceUpdate(dbTransaction *lcdatabase.Transaction, sou
 			AccountCurrencyId:  dbTransaction.SourceOperation.AccountCurrencyId,
 			From:               database.OPERATION_STATUS_CREATED,
 			To:                 database.OPERATION_STATUS_POSTED,
+			OperationType:      dbTransaction.SourceOperation.Type,
 			Timestamp:          time.Now(),
 		})
 	}
@@ -199,6 +200,7 @@ func (t *transfers) initBalanceUpdate(dbTransaction *lcdatabase.Transaction, sou
 		AccountCurrencyId:  dbTransaction.TargetOperation.AccountCurrencyId,
 		From:               database.OPERATION_STATUS_CREATED,
 		To:                 database.OPERATION_STATUS_POSTED,
+		OperationType:      dbTransaction.TargetOperation.Type,
 		Timestamp:          time.Now(),
 	})
 }
