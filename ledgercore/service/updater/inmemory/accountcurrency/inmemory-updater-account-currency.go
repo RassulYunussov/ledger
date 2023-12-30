@@ -75,12 +75,12 @@ func (inMemory *accountCurrencyInMemoryUpdater) UpdateBalance(operation database
 	inMemory.operationTypeChannels[operationTypeChannelId].subsystemChannels[subsystemId].accountCurrencyChannels[channelId] <- operation
 }
 
-func (inMemory *accountCurrencyInMemoryUpdater) processAccountCurrencyOperations(channel <-chan database.OperationStatusTransition, subsystemIdx int, idx int) {
+func (inMemory *accountCurrencyInMemoryUpdater) processAccountCurrencyOperations(channel <-chan database.OperationStatusTransition, operationTypeId int, subsystemIdx int, idx int) {
 	for operation := range channel {
 		current := time.Now()
 		diff := time.Duration(current.UnixNano()/int64(time.Millisecond) - operation.Timestamp.UnixNano()/int64(time.Millisecond))
-		inMemory.dd.Timing("acoperation.dequeue", time.Duration(diff), fmt.Sprintf("channel:%d", idx), fmt.Sprintf("subsystem:%d", subsystemIdx))
-		inMemory.log.Debug(fmt.Sprintf("processing account currency operation %d form channel %d subsystem %d", operation.Id, idx, subsystemIdx))
+		inMemory.dd.Timing("acoperation.dequeue", time.Duration(diff), fmt.Sprintf("channel:%d", idx), fmt.Sprintf("subsystem:%d", subsystemIdx), fmt.Sprintf("type:%d", operationTypeId))
+		inMemory.log.Debug(fmt.Sprintf("processing account currency operation %d form channel %d subsystem %d type %d", operation.Id, idx, subsystemIdx, operationTypeId))
 		inMemory.workersChan <- true
 		go inMemory.update(operation)
 	}
@@ -136,10 +136,10 @@ func CreateAccountCurrencyInMemoryUpdater(log *zap.Logger,
 			configuration.InMemory.AccountCurrencies.Queues)
 
 	for operationTypeIdx, operationTypeChannel := range updater.operationTypeChannels {
-		for subsystemIdx, subsystemChans := range operationTypeChannel.subsystemChannels {
-			for idx, ch := range subsystemChans.accountCurrencyChannels {
+		for subsystemIdx, subsystemChannel := range operationTypeChannel.subsystemChannels {
+			for idx, ch := range subsystemChannel.accountCurrencyChannels {
 				updater.log.Info(fmt.Sprintf("start listening from operation type %d, sybsystem %d, account currency channel %d", subsystemIdx, operationTypeIdx, idx))
-				go updater.processAccountCurrencyOperations(ch, subsystemIdx, idx)
+				go updater.processAccountCurrencyOperations(ch, operationTypeIdx, subsystemIdx, idx)
 			}
 		}
 	}
