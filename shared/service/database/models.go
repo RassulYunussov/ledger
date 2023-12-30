@@ -20,10 +20,15 @@ type OperationStatusTransition struct {
 	AccountCurrencyId  uuid.UUID
 	From               string
 	To                 string
+	OperationType      string
 	Timestamp          time.Time // observability purpose
 }
 
 type Currency struct {
 	IsoName       string
 	NumberToBasic int32
+}
+
+func GetOperationTypes() []string {
+	return []string{OPERATION_TYPE_OUT, OPERATION_TYPE_IN}
 }
