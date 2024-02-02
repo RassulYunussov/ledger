@@ -72,6 +72,12 @@ func (t *transfers) createTransaction(ctx context.Context, requestMdc *logger.Re
 	// otherwise we need - to obtain values for source/target using currency conversion
 	transactionAmountInFractional := currency.GetAmountInFractional(transaction.Amount, transaction.Fractional, transaction.Currency)
 
+	if sourceAccountCurrency.CreditLimit != nil && sourceAccountCurrency.Amount-transactionAmountInFractional < *sourceAccountCurrency.CreditLimit {
+		logger.LogInfo(t.log, requestMdc, fmt.Sprintf("account %v reached credit limit: %d, failing transaction", transaction.SourceAccountInfo.Id, *sourceAccountCurrency.CreditLimit))
+		increment(t.dd, "fail", requestMdc.Subsystem, "reason:credit_limit")
+		return nil, ErrInsufficientAmount
+	}
+
 	transactionCreateRequest := lcdatabase.TransactionCreateRequest{
 		Id:          transaction.Id,
 		SubsystemId: transaction.SubsystemId,
@@ -300,12 +306,6 @@ func (t *transfers) getValidatedAccountCurrencies(ctx context.Context, requestMd
 	sourceAccountCurrency, err := t.getAccountCurrency(ctx, requestMdc, transaction.SourceAccountInfo.Id, transaction.SourceAccountInfo.Currency, source.AllowAsync)
 	if err != nil {
 		return nil, nil, err
-	}
-
-	if sourceAccountCurrency.CreditLimit != nil && sourceAccountCurrency.Amount-transaction.Amount < *sourceAccountCurrency.CreditLimit {
-		logger.LogInfo(t.log, requestMdc, fmt.Sprintf("account %v reached credit limit: %d, failing transaction", transaction.SourceAccountInfo.Id, *sourceAccountCurrency.CreditLimit))
-		increment(t.dd, "fail", requestMdc.Subsystem, "reason:credit_limit")
-		return nil, nil, ErrInsufficientAmount
 	}
 
 	targetAccountCurrency, err := t.getAccountCurrency(ctx, requestMdc, transaction.TargetAccountInfo.Id, transaction.TargetAccountInfo.Currency, true)
